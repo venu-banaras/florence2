@@ -1,0 +1,6 @@
+timm
+tqdm
+transformers
+einops
+matplotlib
+opencv-python
