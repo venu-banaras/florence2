@@ -46,6 +46,5 @@ def convert_csv_to_yolo(csv_file, image_folder, output_folder):
 
     print(f"YOLO annotations saved to {output_folder}")
 
-# Example usage
 convert_csv_to_yolo('/media/cai_002/New Volume2/florence2/loc_data/anno.csv', '/media/cai_002/New Volume2/florence2/loc_data/imgs'
                     , 'yolo_annotations')

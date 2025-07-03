@@ -62,13 +62,13 @@ train_dataset = DetectionDataset(
     image_directory_path = "phsku"
 )
 
-# val_dataset = DetectionDataset(
-#     jsonl_file_path = "/content/objectdetection-5/valid/images/val_annotations.json",
-#     image_directory_path = "/content/objectdetection-5/valid/images"
-# )
+val_dataset = DetectionDataset(
+    jsonl_file_path = "/content/objectdetection-5/valid/images/val_annotations.json",
+    image_directory_path = "/content/objectdetection-5/valid/images"
+)
 
 train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, collate_fn=collate_fn, num_workers=NUM_WORKERS, shuffle=True)
-# val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, collate_fn=collate_fn, num_workers=NUM_WORKERS)
+val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, collate_fn=collate_fn, num_workers=NUM_WORKERS)
 val_loader = None
 
 # Setup LoRA Florence-2 model
@@ -128,27 +128,27 @@ def train_model(train_loader, val_loader, model, processor, epochs=10, lr=1e-6):
         print(f"Average Training Loss: {avg_train_loss}")
         ALL_TRAIN_LOSS.append(avg_train_loss)
 
-        # model.eval()
-        # val_loss = 0
-        # with torch.no_grad():
-        #     for inputs, answers in tqdm(val_loader, desc=f"Validation Epoch {epoch + 1}/{epochs}"):
+        model.eval()
+        val_loss = 0
+        with torch.no_grad():
+            for inputs, answers in tqdm(val_loader, desc=f"Validation Epoch {epoch + 1}/{epochs}"):
 
-        #         input_ids = inputs["input_ids"]
-        #         pixel_values = inputs["pixel_values"]
-        #         labels = processor.tokenizer(
-        #             text=answers,
-        #             return_tensors="pt",
-        #             padding=True,
-        #             return_token_type_ids=False
-        #         ).input_ids.to(DEVICE)
+                input_ids = inputs["input_ids"]
+                pixel_values = inputs["pixel_values"]
+                labels = processor.tokenizer(
+                    text=answers,
+                    return_tensors="pt",
+                    padding=True,
+                    return_token_type_ids=False
+                ).input_ids.to(DEVICE)
 
-        #         outputs = model(input_ids=input_ids, pixel_values=pixel_values, labels=labels)
-        #         loss = outputs.loss
+                outputs = model(input_ids=input_ids, pixel_values=pixel_values, labels=labels)
+                loss = outputs.loss
 
-        #         val_loss += loss.item()
+                val_loss += loss.item()
 
-        #     avg_val_loss = val_loss / len(val_loader)
-        #     print(f"Average Validation Loss: {avg_val_loss}")
+            avg_val_loss = val_loss / len(val_loader)
+            print(f"Average Validation Loss: {avg_val_loss}")
 
 
         output_dir = f"model_checkpoints/ph_ckpt/epoch_{epoch+1}"
